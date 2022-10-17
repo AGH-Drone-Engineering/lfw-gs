@@ -113,6 +113,8 @@ class Box:
         self.label.place(x=0, y=0)
 
 
+
+
 root = Tk.Tk()
 
 root.geometry("600x550")
