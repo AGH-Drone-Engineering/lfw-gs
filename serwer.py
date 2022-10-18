@@ -4,15 +4,20 @@ import socket
 
 
 # ncat -l 8888
-
 def add_data_to_gui(data_check, name_x: str, x_list: list, y_list: list):
     start_world = data_check.find(name_x)
     len_specific_name = len(name_x)
     start = len_specific_name + start_world
-    x_value = float(data_check[:start_world])
-    y_value = float(data_check[start:])
-    x_list.append(x_value)
-    y_list.append(y_value)
+    first_value = data_check[:start_world].isnumeric()
+    second_value = data_check[start:-1].isnumeric()
+    if first_value == 1 and second_value == 1:
+        x_value = float(data_check[:start_world])
+        x_list.append(x_value)
+        y_value = float(data_check[start:])
+        y_list.append(y_value)
+    else:
+        print(data_check[:start_world].isnumeric(), data_check[start:].isnumeric())
+        print('Wrong start type of data, not flat or int')
 
 
 def recognize_data(given_data):
@@ -26,7 +31,7 @@ def recognize_data(given_data):
     elif given_data.find(used_names[2]) > 0:
         add_data_to_gui(given_data, used_names[2], x_list_right_motor, y_list_right_motor)
     else:
-        print("Non expected value")
+        print("Non expected type of data")
 
     print(x_list_left_motor, y_list_left_motor, x_list_right_motor, y_list_right_motor)
 
