@@ -1,31 +1,76 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import random
+import threading
 import tkinter as Tk
 from itertools import count
-
+import socket
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+import threading
 
 class Gui:
     def __init__(self):
-        self.x_vals = []
-        self.y_vals = []
-        # values for second graph
-        self.y_vals2 = []
-        self.y_vals3 = []
-        self.index = count()
+        # self.x_vals = []
+        # self.y_vals = []
+        # # values for second graph
+        # self.y_vals2 = []
+        # self.y_vals3 = []
+        # self.index = count()
+        self.x_list_right_motor = []
+        self.y_list_right_motor = []
+        self.x_list_left_motor = []
+        self.y_list_left_motor = []
+
+    def add_data_to_gui(self, data_check, name_x: str, x_list: list, y_list: list):
+        start_world = data_check.find(name_x)
+        len_specific_name = len(name_x)
+        start = len_specific_name + start_world
+        first_value = data_check[:start_world].isnumeric()
+        second_value = data_check[start:-1].isnumeric()
+        if first_value == 1 and second_value == 1:
+            x_value = float(data_check[:start_world])
+            x_list.append(x_value)
+            y_value = float(data_check[start:])
+            y_list.append(y_value)
+        else:
+            print(data_check[:start_world].isnumeric(), data_check[start:].isnumeric())
+            print('Wrong start type of data, not flat or int')
+
+    def recognize_data(self, given_data):
+        # data = '192;angle;8225'
+        used_names = (';left_motor;', ';right_motor;', ';angle;')
+
+        if given_data.find(used_names[0]) > 0:
+            self.add_data_to_gui(given_data, used_names[0], self.x_list_left_motor, self.y_list_left_motor)
+        elif given_data.find(used_names[1]) > 0:
+            self.add_data_to_gui(given_data, used_names[1], self.x_list_right_motor, self.y_list_right_motor)
+        elif given_data.find(used_names[2]) > 0:
+            self.add_data_to_gui(given_data, used_names[2], self.x_list_right_motor, self.y_list_right_motor)
+        else:
+            print("Non expected type of data")
+
+    def connection(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect(('localhost', 8888))
+            s.sendall(b"Connect to the server")
+            while True:
+                data = s.recv(1024)
+                data = data.decode("utf-8")
+                print(data)
+                self.recognize_data(data)
+
 
     def animate(self, i):
         # Generate values
-        self.x_vals.append(next(self.index))
-        self.y_vals.append(random.randint(0, 5))
-        self.y_vals2.append(random.randint(0, 100))
-        self.y_vals3.append(random.randint(0, 100))
+        # self.x_vals.append(next(self.index))
+        # self.y_vals.append(random.randint(0, 5))
+        # self.y_vals2.append(random.randint(0, 100))
+        # self.y_vals3.append(random.randint(0, 100))
 
         # Get all axes of figure
+
         ax1, ax2 = plt.gcf().get_axes()
         # Clear current data
         ax1.cla()
@@ -41,12 +86,12 @@ class Gui:
         ax2.axis()
         ax2.set(ylim=(0, 100))
         # Plot new data
-        ax1.plot(self.x_vals, self.y_vals, label='PID reaction')
-        ax1.plot(self.x_vals, self.y_vals2, label='Angle')
+        ax1.plot(self.x_list_right_motor, self.y_list_right_motor, label='PID reaction')
+        ax1.plot(self.x_list_left_motor, self.y_list_left_motor, label='Angle')
         ax1.legend()
 
-        ax2.plot(self.x_vals, self.y_vals2, label='2 engine')
-        ax2.plot(self.x_vals, self.y_vals3, label='1 engine')
+        ax2.plot(self.x_list_right_motor, self.y_list_right_motor, label='2 engine')
+        ax2.plot(self.x_list_left_motor, self.y_list_left_motor, label='1 engine')
         ax2.legend()
 
 
@@ -127,6 +172,7 @@ canvas.get_tk_widget().place(x=0, y=0)
 plt.gcf().subplots(1, 2)
 
 graphs = Gui()
+threading.Thread(target=graphs.connection).start()
 ani = FuncAnimation(plt.gcf(), graphs.animate, interval=1000, blit=False)
 
 slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140, y_button=520,
