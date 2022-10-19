@@ -16,15 +16,12 @@ def click():
 button = Button(root, text='Click me', command=click, fg='blue', bg='red', padx=20, pady=10)  # jest komenda padx i pady które definiuja wielkosc buttona
 button.pack()
 
-
-slider = Scale(root, from_=0, to=100, orient=HORIZONTAL)
-slider.pack()
-
-
-
 def slide():
     my_lebel = Label(root, text=slider.get()).pack()
     # print(slider.get())
 
+
+slider = Scale(root, from_=0, to=100, orient=HORIZONTAL)
+slider.pack()
 btn = Button(root, text="Refresh variable", command=slide).pack()
 root.mainloop()
