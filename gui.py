@@ -12,6 +12,7 @@ import threading
 
 root = Tk.Tk()
 
+
 class Slider:
     def __init__(self, x_slider: int, y_slider: int, min_range_slider: int, max_range_slider: int, x_button: int,
                  y_button: int, name_button: str, on_press):
@@ -26,7 +27,6 @@ class Slider:
         self.max_range_slider = max_range_slider
         self.on_press = on_press
 
-
     def slider_gener(self):
         self.slider = Tk.Scale(root, from_=self.min_range_slider, to=self.max_range_slider, orient=Tk.HORIZONTAL)
         self.slider.place(x=self.x_slider, y=self.y_slider)
@@ -37,11 +37,11 @@ class Slider:
 
     def slider_callback(self):
         # print(self.name_button + str(';') + str(self.slider.get()))
-        self.on_press(self.name_button + str(';') + str(self.slider.get()) +"\n")
+        self.on_press(self.name_button + str(';') + str(self.slider.get()) + "\n")
+
 
 class Box:
-    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int):
-        self.callback_value = -1
+    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int, on_press):
         self.label = Tk.Button()
         self.button_dis = None
         self.button_con = None
@@ -51,6 +51,7 @@ class Box:
         self.x_button = x_button
         self.y_button = y_button
         self.width = width
+        self.on_press = on_press
 
     def box_gener(self):
         self.box = Tk.Entry(root, width=self.width)
@@ -70,13 +71,15 @@ class Box:
         connected_message = "You're connected: " + str(self.box.get())
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
-        self.callback_value = self.box.get()
+        # self.callback_value = self.box.get()
+        self.on_press(str('connection_ip;') + str(self.box.get()) + "\n")
 
     def disconnected(self):
         self.label.destroy()
         connected_message = "You're disconnected"
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
+        self.on_press(str('disconnected;') + "\n")
 
 
 class Gui:
@@ -158,11 +161,9 @@ class Gui:
         ax2.legend()
 
 
-
 class Main:
 
     def main(self):
-
         root.geometry("600x550")
         root.resizable(width=False, height=False)
         root.title("LineFollower controller")
@@ -176,17 +177,19 @@ class Main:
         threading.Thread(target=graphs.connection).start()
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140, y_button=520,
+        slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140,
+                              y_button=520,
                               name_button='Set P', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=440, y_button=520,
+        slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=440,
+                              y_button=520,
                               name_button='Set D', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20)
+        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20, on_press=graphs.send_message)
         connect_IP.disconnected()
         connect_IP.box_gener()
         connect_IP.box_button_con()
