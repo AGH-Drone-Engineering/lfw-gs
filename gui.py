@@ -10,10 +10,11 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
 
+root = Tk.Tk()
 
-class Slider(object):
+class Slider:
     def __init__(self, x_slider: int, y_slider: int, min_range_slider: int, max_range_slider: int, x_button: int,
-                 y_button: int, name_button: str):
+                 y_button: int, name_button: str, on_press):
         self.btn = None
         self.slider = None
         self.x_slider = x_slider
@@ -23,6 +24,8 @@ class Slider(object):
         self.name_button = name_button
         self.min_range_slider = min_range_slider
         self.max_range_slider = max_range_slider
+        self.on_press = on_press
+
 
     def slider_gener(self):
         self.slider = Tk.Scale(root, from_=self.min_range_slider, to=self.max_range_slider, orient=Tk.HORIZONTAL)
@@ -33,10 +36,10 @@ class Slider(object):
         self.btn.place(x=self.x_button, y=self.y_button)
 
     def slider_callback(self):
-        print(self.slider.get())
+        # print(self.name_button + str(';') + str(self.slider.get()))
+        self.on_press(self.name_button + str(';') + str(self.slider.get()) +"\n")
 
-
-class Box(object):
+class Box:
     def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int):
         self.callback_value = -1
         self.label = Tk.Button()
@@ -83,6 +86,7 @@ class Gui:
         self.y_list_right_motor = []
         self.x_list_left_motor = []
         self.y_list_left_motor = []
+        self.socket = None
 
     def add_data_to_gui(self, data_check, name_x: str, x_list: list, y_list: list):
         start_world = data_check.find(name_x)
@@ -113,16 +117,21 @@ class Gui:
             print("Non expected type of data")
 
     def connection(self):
+
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            self.socket = s
             s.connect(('localhost', 8888))
-            s.sendall(b"Connect to the server")
+            s.sendall(b"#Connect to the server \n")
             while True:
                 # print(s.sendall())
                 data = s.recv(1024)
                 data = data.decode("utf-8")
                 print(data)
                 self.recognize_data(data)
+        self.socket = None
 
+    def send_message(self, message):
+        self.socket.sendall(bytes(message, 'utf-8'))
 
     def animate(self, i):
         ax1, ax2 = plt.gcf().get_axes()
@@ -149,35 +158,43 @@ class Gui:
         ax2.legend()
 
 
-root = Tk.Tk()
 
-root.geometry("600x550")
-root.resizable(width=False, height=False)
-root.title("LineFollower controller")
-# graph 1
-canvas = FigureCanvasTkAgg(plt.gcf(), master=root)
-canvas.get_tk_widget().place(x=0, y=0)
-# Create two subplots in row 1 and column 1, 2
-plt.gcf().subplots(1, 2)
+class Main:
 
-graphs = Gui()
-threading.Thread(target=graphs.connection).start()
-ani = FuncAnimation(plt.gcf(), graphs.animate, interval=1000, blit=False)
+    def main(self):
 
-slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140, y_button=520,
-                      name_button='Set P')
-slider_P_reg.slider_gener()
-slider_P_reg.slider_button()
+        root.geometry("600x550")
+        root.resizable(width=False, height=False)
+        root.title("LineFollower controller")
+        # graph 1
+        canvas = FigureCanvasTkAgg(plt.gcf(), master=root)
+        canvas.get_tk_widget().place(x=0, y=0)
+        # Create two subplots in row 1 and column 1, 2
+        plt.gcf().subplots(1, 2)
 
-slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=440, y_button=520,
-                      name_button='Set D')
-slider_P_reg.slider_gener()
-slider_P_reg.slider_button()
+        graphs = Gui()
+        threading.Thread(target=graphs.connection).start()
+        ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20)
-connect_IP.disconnected()
-connect_IP.box_gener()
-connect_IP.box_button_con()
-connect_IP.box_button_dis()
+        slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140, y_button=520,
+                              name_button='Set P', on_press=graphs.send_message)
+        slider_P_reg.slider_gener()
+        slider_P_reg.slider_button()
 
-root.mainloop()
+        slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=440, y_button=520,
+                              name_button='Set D', on_press=graphs.send_message)
+        slider_P_reg.slider_gener()
+        slider_P_reg.slider_button()
+
+        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20)
+        connect_IP.disconnected()
+        connect_IP.box_gener()
+        connect_IP.box_button_con()
+        connect_IP.box_button_dis()
+
+        root.mainloop()
+
+
+if __name__ == '__main__':
+    main = Main()
+    main.main()
