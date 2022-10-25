@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
+import time
 
 root = Tk.Tk()
 
@@ -41,7 +42,9 @@ class Slider:
 
 
 class Box:
-    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int, on_press):
+    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int, on_press, graphs):
+        self.close = None
+        self.thread1 = None
         self.label = Tk.Button()
         self.button_dis = None
         self.button_con = None
@@ -52,6 +55,7 @@ class Box:
         self.y_button = y_button
         self.width = width
         self.on_press = on_press
+        self.graphs = graphs
 
     def box_gener(self):
         self.box = Tk.Entry(root, width=self.width)
@@ -63,7 +67,7 @@ class Box:
         self.button_con.place(x=self.x_button, y=self.y_button)
 
     def box_button_dis(self):
-        self.button_dis = Tk.Button(root, text='Disconnect', command=self.disconnected)
+        self.button_dis = Tk.Button(root, text='Disconnect', command=self.disconnected_callback)
         self.button_dis.place(x=500, y=-2)
 
     def box_callback(self):
@@ -72,15 +76,31 @@ class Box:
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
         # self.callback_value = self.box.get()
-        self.on_press(str('connection_ip;') + str(self.box.get()) + "\n")
+        # self.on_press(str('connection_ip;') + str(self.box.get()) + "\n")
+
+        self.close = False
+        self.box = self.box.get()
+        self.thread1 = threading.Thread(target=self.graphs.connection, args=[self.box, self.close])
+        self.thread1.start()
+
 
     def disconnected(self):
         self.label.destroy()
         connected_message = "You're disconnected"
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
-        self.on_press(str('disconnected;') + "\n")
 
+
+    def disconnected_callback(self):
+        self.label.destroy()
+        connected_message = "You're disconnected"
+        self.label = Tk.Label(root, text=connected_message)
+        self.label.place(x=0, y=0)
+        # self.on_press(str('disconnected;') + "\n")
+        #TODO dokończyć przycisk wyłączania threada i programu
+        # self.close = True
+        # self.thread1.join()
+        print("Finish disconnect button")
 
 class Gui:
     def __init__(self):
@@ -119,19 +139,25 @@ class Gui:
         else:
             print("Non expected type of data")
 
-    def connection(self):
+    def connection(self, host_id, connection_break):
+        if connection_break:
+            print("Thread killed")
+        else:
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    self.socket = s
+                    s.connect((host_id, 8888))
+                    s.sendall(b"#Connect to the server\n")
+                    while True:
+                        data = s.recv(1024)
+                        data = data.decode("utf-8")
+                        print(data)
+                        self.recognize_data(data)
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            self.socket = s
-            s.connect(('localhost', 8888))
-            s.sendall(b"#Connect to the server \n")
-            while True:
-                # print(s.sendall())
-                data = s.recv(1024)
-                data = data.decode("utf-8")
-                print(data)
-                self.recognize_data(data)
-        self.socket = None
+                    s.close()
+                    self.socket = None
+            except:
+                raise "Connection error"
 
     def send_message(self, message):
         self.socket.sendall(bytes(message, 'utf-8'))
@@ -167,6 +193,7 @@ class Main:
         root.geometry("600x550")
         root.resizable(width=False, height=False)
         root.title("LineFollower controller")
+
         # graph 1
         canvas = FigureCanvasTkAgg(plt.gcf(), master=root)
         canvas.get_tk_widget().place(x=0, y=0)
@@ -174,7 +201,13 @@ class Main:
         plt.gcf().subplots(1, 2)
 
         graphs = Gui()
-        threading.Thread(target=graphs.connection).start()
+
+        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20, on_press=0, graphs=graphs)
+        connect_IP.disconnected()
+        connect_IP.box_gener()
+        connect_IP.box_button_con()
+        connect_IP.box_button_dis()
+        time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
         slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140,
@@ -189,11 +222,7 @@ class Main:
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20, on_press=graphs.send_message)
-        connect_IP.disconnected()
-        connect_IP.box_gener()
-        connect_IP.box_button_con()
-        connect_IP.box_button_dis()
+
 
         root.mainloop()
 
