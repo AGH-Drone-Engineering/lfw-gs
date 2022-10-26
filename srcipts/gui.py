@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import random
-import threading
 import tkinter as Tk
 from itertools import count
 import socket
@@ -10,6 +8,7 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
 import time
+import multiprocessing
 
 root = Tk.Tk()
 
@@ -75,12 +74,8 @@ class Box:
         connected_message = "You're connected: " + str(self.box.get())
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
-        # self.callback_value = self.box.get()
-        # self.on_press(str('connection_ip;') + str(self.box.get()) + "\n")
-
         self.close = False
-        self.box = self.box.get()
-        self.thread1 = threading.Thread(target=self.graphs.connection, args=[self.box, self.close])
+        self.thread1 = threading.Thread(target=self.graphs.connection, args=[self.box.get()])
         self.thread1.start()
 
 
@@ -101,6 +96,7 @@ class Box:
         # self.close = True
         # self.thread1.join()
         print("Finish disconnect button")
+
 
 class Gui:
     def __init__(self):
@@ -139,7 +135,7 @@ class Gui:
         else:
             print("Non expected type of data")
 
-    def connection(self, host_id, connection_break):
+    def connection(self, host_id, connection_break=False):
         if connection_break:
             print("Thread killed")
         else:
@@ -206,7 +202,6 @@ class Main:
         connect_IP.disconnected()
         connect_IP.box_gener()
         connect_IP.box_button_con()
-        connect_IP.box_button_dis()
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
