@@ -77,6 +77,8 @@ class Box:
         self.close = False
         self.thread1 = threading.Thread(target=self.graphs.connection, args=[self.box.get()])
         self.thread1.start()
+        self.button_con.destroy()
+        self.box.destroy()
 
 
     def disconnected(self):
@@ -91,10 +93,6 @@ class Box:
         connected_message = "You're disconnected"
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
-        # self.on_press(str('disconnected;') + "\n")
-        #TODO dokończyć przycisk wyłączania threada i programu
-        # self.close = True
-        # self.thread1.join()
         print("Finish disconnect button")
 
 
