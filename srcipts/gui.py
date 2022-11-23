@@ -36,7 +36,6 @@ class Slider:
         self.btn.place(x=self.x_button, y=self.y_button)
 
     def slider_callback(self):
-        # print(self.name_button + str(';') + str(self.slider.get()))
         self.on_press(self.name_button + str(';') + str(self.slider.get()) + "\n")
 
 
@@ -58,7 +57,7 @@ class Box:
 
     def box_gener(self):
         self.box = Tk.Entry(root, width=self.width)
-        self.box.insert(0, 'Connect with IP')
+        self.box.insert(0, 'localhost')
         self.box.place(x=self.x_box, y=self.y_box)
 
     def box_button_con(self):
@@ -98,7 +97,6 @@ class Box:
 
 class Gui:
     def __init__(self):
-        # super().__init__(x_box, y_box, width, x_button, y_button)
         self.x_list_right_motor = []
         self.y_list_right_motor = []
         self.x_list_left_motor = []
@@ -117,7 +115,6 @@ class Gui:
             y_value = float(data_check[start:])
             y_list.append(y_value)
         else:
-
             print('Wrong start type of data, not flat or int')
 
     def recognize_data(self, given_data):
@@ -130,8 +127,10 @@ class Gui:
             self.add_data_to_gui(given_data, used_names[1], self.x_list_right_motor, self.y_list_right_motor)
         elif given_data.find(used_names[2]) > 0:
             self.add_data_to_gui(given_data, used_names[2], self.x_list_right_motor, self.y_list_right_motor)
+        elif given_data[0] == '#':
+            print(given_data)
         else:
-            print("Non expected type of data")
+            pass
 
     def connection(self, host_id, connection_break=False):
         if connection_break:
@@ -203,13 +202,13 @@ class Main:
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=140,
+        slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=140,
                               y_button=520,
                               name_button='Set P', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=100, x_button=440,
+        slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=440,
                               y_button=520,
                               name_button='Set D', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
