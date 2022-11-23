@@ -9,6 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
 import time
 import multiprocessing
+import re
 
 root = Tk.Tk()
 
@@ -101,20 +102,28 @@ class Gui:
         self.y_list_right_motor = []
         self.x_list_left_motor = []
         self.y_list_left_motor = []
+        self.x_angle = []
+        self.y_angle = []
         self.socket = None
 
     def add_data_to_gui(self, data_check, name_x: str, x_list: list, y_list: list):
+        print('XDDDD', data_check, x_list, y_list, sep='|')
         start_world = data_check.find(name_x)
         len_specific_name = len(name_x)
         start = len_specific_name + start_world
-        first_value = data_check[:start_world].isnumeric()
-        second_value = data_check[start:-1].isnumeric()
-        if first_value == 1 and second_value == 1:
-            x_value = float(data_check[:start_world])
+
+        first_value = data_check[:start_world]
+        second_value = data_check[start:]
+
+
+        try:
+            x_value = float(first_value)
+            y_value = float(second_value)
             x_list.append(x_value)
-            y_value = float(data_check[start:])
             y_list.append(y_value)
-        else:
+            del x_list[:-100 ]
+            del     y_list[:-100 ]
+        except ValueError:
             print('Wrong start type of data, not flat or int')
 
     def recognize_data(self, given_data):
@@ -126,7 +135,7 @@ class Gui:
         elif given_data.find(used_names[1]) > 0:
             self.add_data_to_gui(given_data, used_names[1], self.x_list_right_motor, self.y_list_right_motor)
         elif given_data.find(used_names[2]) > 0:
-            self.add_data_to_gui(given_data, used_names[2], self.x_list_right_motor, self.y_list_right_motor)
+            self.add_data_to_gui(given_data, used_names[2], self.x_angle, self.y_angle)
         elif given_data[0] == '#':
             print(given_data)
         else:
@@ -172,7 +181,7 @@ class Gui:
         ax2.set(ylim=(0, 100))
         # Plot new data
         ax1.plot(self.x_list_right_motor, self.y_list_right_motor, label='PID reaction')
-        ax1.plot(self.x_list_left_motor, self.y_list_left_motor, label='Angle')
+        ax1.plot(self.x_angle, self.y_angle, label='Angle')
         ax1.legend()
 
         ax2.plot(self.x_list_right_motor, self.y_list_right_motor, label='2 engine')
