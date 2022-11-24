@@ -10,6 +10,7 @@ import threading
 import time
 import multiprocessing
 import re
+import os
 
 root = Tk.Tk()
 
@@ -28,7 +29,13 @@ class Button:
         self.button.place(x=self.x_button, y=self.y_button)
 
     def button_callback(self):
-        with open('readme.txt', 'w') as f:
+        dir_path = r'../data'
+
+        numer_file = len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))])
+        numer_file += 1
+
+        file_name = '../data/angle_data' + str(numer_file) + '.txt'
+        with open(file_name, 'w') as f:
             for i, j in zip(x_angle_global, y_angle_global):
                 f.write(str(i) + ',' + str(j))
                 f.write('\n')

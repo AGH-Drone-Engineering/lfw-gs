@@ -1,13 +1,8 @@
-import numpy as np
+import os
+x_angle_global = [1, 2, 3]
+y_angle_global = [2, 4, 5]
+# folder path
+import os
 
-arr = np.linspace(0, 1, 20)
-# print(arr)
-asd = np.linspace(2, 10, 20)
-
-a = '2;angle;-1'
-if a.find(';angle;') > 0:
-    print(True)
-with open('readme.txt', 'w') as f:
-    for i, j in zip(arr, asd):
-        f.write(str(i) + ',' + str(j))
-        f.write('\n')
+dir_path = r'../data'
+count = len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))])
