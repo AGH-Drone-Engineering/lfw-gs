@@ -14,6 +14,18 @@ import re
 root = Tk.Tk()
 
 
+class Button:
+    def __init__(self, x_button: int, y_button: int, name_button: str):
+        self.button = None
+        self.x_button = x_button
+        self.y_button = y_button
+        self.name_button = name_button
+
+    def button_generation(self):
+        self.button = Tk.Button(root, text=self.name_button)
+        self.button.place(x=self.x_button, y=self.y_button)
+
+
 class Slider:
     def __init__(self, x_slider: int, y_slider: int, min_range_slider: int, max_range_slider: int, x_button: int,
                  y_button: int, name_button: str, on_press):
@@ -80,13 +92,11 @@ class Box:
         self.button_con.destroy()
         self.box.destroy()
 
-
     def disconnected(self):
         self.label.destroy()
         connected_message = "You're disconnected"
         self.label = Tk.Label(root, text=connected_message)
         self.label.place(x=0, y=0)
-
 
     def disconnected_callback(self):
         self.label.destroy()
@@ -107,7 +117,6 @@ class Gui:
         self.socket = None
 
     def add_data_to_gui(self, data_check, name_x: str, x_list: list, y_list: list):
-        print('XDDDD', data_check, x_list, y_list, sep='|')
         start_world = data_check.find(name_x)
         len_specific_name = len(name_x)
         start = len_specific_name + start_world
@@ -115,14 +124,13 @@ class Gui:
         first_value = data_check[:start_world]
         second_value = data_check[start:]
 
-
         try:
             x_value = float(first_value)
             y_value = float(second_value)
             x_list.append(x_value)
             y_list.append(y_value)
-            del x_list[:-100 ]
-            del     y_list[:-100 ]
+            del x_list[:-100]
+            del y_list[:-100]
         except ValueError:
             print('Wrong start type of data, not flat or int')
 
@@ -223,7 +231,8 @@ class Main:
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-
+        button_save_date = Button(280, 490, 'save_date')
+        button_save_date.button_generation()
 
         root.mainloop()
 
