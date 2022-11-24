@@ -129,6 +129,8 @@ class Gui:
         self.y_list_left_motor = []
         self.x_angle = []
         self.y_angle = []
+        self.x_pid_response = []
+        self.y_pid_response = []
         self.socket = None
 
     def add_data_to_gui(self, data_check, name_x: str, x_list: list, y_list: list):
@@ -156,7 +158,7 @@ class Gui:
 
     def recognize_data(self, given_data):
         # data = '192;angle;8225'
-        used_names = (';left_motor;', ';right_motor;', ';angle;')
+        used_names = (';left_motor;', ';right_motor;', ';angle;', ';pid_response;')
 
         if given_data.find(used_names[0]) > 0:
             self.add_data_to_gui(given_data, used_names[0], self.x_list_left_motor, self.y_list_left_motor)
@@ -164,6 +166,8 @@ class Gui:
             self.add_data_to_gui(given_data, used_names[1], self.x_list_right_motor, self.y_list_right_motor)
         elif given_data.find(used_names[2]) > 0:
             self.add_data_to_gui(given_data, used_names[2], self.x_angle, self.y_angle)
+        elif given_data.find(used_names[3]) > 0:
+            self.add_data_to_gui(given_data, used_names[3], self.x_pid_response, self.y_pid_response)
         elif given_data[0] == '#':
             print(given_data)
         else:
@@ -208,19 +212,19 @@ class Gui:
         ax2.axis()
         ax2.set(ylim=(0, 100))
         # Plot new data
-        ax1.plot(self.x_list_right_motor, self.y_list_right_motor, label='PID reaction')
+        ax1.plot(self.x_pid_response, self.y_pid_response, label='PID reaction')
         ax1.plot(self.x_angle, self.y_angle, label='Angle')
         ax1.legend()
 
-        ax2.plot(self.x_list_right_motor, self.y_list_right_motor, label='2 engine')
-        ax2.plot(self.x_list_left_motor, self.y_list_left_motor, label='1 engine')
+        ax2.plot(self.x_list_right_motor, self.y_list_right_motor, label='R engine')
+        ax2.plot(self.x_list_left_motor, self.y_list_left_motor, label='L engine')
         ax2.legend()
 
 
 class Main:
 
     def main(self):
-        root.geometry("600x550")
+        root.geometry("600x600")
         root.resizable(width=False, height=False)
         root.title("LineFollower controller")
 
@@ -239,21 +243,32 @@ class Main:
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        slider_P_reg = Slider(x_slider=100, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=140,
-                              y_button=520,
+        slider_P_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=1000, x_button=550,
+                              y_button=530,
                               name_button='Set P', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        slider_P_reg = Slider(x_slider=400, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=440,
-                              y_button=520,
+        slider_D_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=550,
+                              y_button=495,
                               name_button='Set D', on_press=graphs.send_message)
-        slider_P_reg.slider_gener()
-        slider_P_reg.slider_button()
+        slider_D_reg.slider_gener()
+        slider_D_reg.slider_button()
 
-        button_save_date = Button(280, 490, 'save_date')
+        button_save_date = Button(460, 570, 'save_data')
         button_save_date.button_generation()
 
+        velocity = Slider(x_slider=10, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=120,
+                              y_button=495,
+                              name_button='Set forward', on_press=graphs.send_message)
+        velocity.slider_gener()
+        velocity.slider_button()
+
+        enable = Slider(x_slider=10, y_slider=515, min_range_slider=0, max_range_slider=1, x_button=120,
+                              y_button=530,
+                              name_button='Enable', on_press=graphs.send_message)
+        enable.slider_gener()
+        enable.slider_button()
         root.mainloop()
 
 
