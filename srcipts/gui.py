@@ -269,6 +269,13 @@ class Main:
                               name_button='Enable', on_press=graphs.send_message)
         enable.slider_gener()
         enable.slider_button()
+
+        turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=100, x_button=120,
+                              y_button=565,
+                              name_button='Turbin', on_press=graphs.send_message)
+        turbin.slider_gener()
+        turbin.slider_button()
+
         root.mainloop()
 
 
