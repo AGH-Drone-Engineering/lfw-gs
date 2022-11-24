@@ -1,19 +1,13 @@
-def add_data_to_gui( data_check, name_x: str):
-    start_world = data_check.find(name_x)
-    len_specific_name = len(name_x)
-    start = len_specific_name + start_world
+import numpy as np
 
-    first_value = data_check[:start_world]
-    second_value = data_check[start:]
+arr = np.linspace(0, 1, 20)
+# print(arr)
+asd = np.linspace(2, 10, 20)
 
-    try:
-        x_value = float(first_value)
-
-        y_value = float(second_value)
-        print(x_value)
-        print(y_value)
-    except ValueError:
-        print('Wrong start type of data, not flat or int')
-
-
-add_data_to_gui('25123123;angle;-1', ';angle;')
+a = '2;angle;-1'
+if a.find(';angle;') > 0:
+    print(True)
+with open('readme.txt', 'w') as f:
+    for i, j in zip(arr, asd):
+        f.write(str(i) + ',' + str(j))
+        f.write('\n')

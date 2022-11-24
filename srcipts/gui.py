@@ -13,6 +13,8 @@ import re
 
 root = Tk.Tk()
 
+x_angle_global = []
+y_angle_global = []
 
 class Button:
     def __init__(self, x_button: int, y_button: int, name_button: str):
@@ -22,8 +24,14 @@ class Button:
         self.name_button = name_button
 
     def button_generation(self):
-        self.button = Tk.Button(root, text=self.name_button)
+        self.button = Tk.Button(root, text=self.name_button, command=self.button_callback)
         self.button.place(x=self.x_button, y=self.y_button)
+
+    def button_callback(self):
+        with open('readme.txt', 'w') as f:
+            for i, j in zip(x_angle_global, y_angle_global):
+                f.write(str(i) + ',' + str(j))
+                f.write('\n')
 
 
 class Slider:
@@ -131,6 +139,11 @@ class Gui:
             y_list.append(y_value)
             del x_list[:-100]
             del y_list[:-100]
+
+            if data_check.find(';angle;') > 0:
+                x_angle_global.append(x_value)
+                y_angle_global.append(y_value)
+
         except ValueError:
             print('Wrong start type of data, not flat or int')
 
@@ -161,7 +174,7 @@ class Gui:
                     while True:
                         data = s.recv(1024)
                         data = data.decode("utf-8")
-                        print(data)
+                        # print(data)
                         self.recognize_data(data)
 
                     s.close()
