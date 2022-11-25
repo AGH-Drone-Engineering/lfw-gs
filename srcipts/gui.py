@@ -1,15 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import tkinter as Tk
-from itertools import count
 import socket
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
 import time
-import multiprocessing
-import re
 import os
 
 root = Tk.Tk()
@@ -85,7 +82,7 @@ class Box:
 
     def box_gener(self):
         self.box = Tk.Entry(root, width=self.width)
-        self.box.insert(0, 'localhost')
+        self.box.insert(0, '192.168.4.1')
         self.box.place(x=self.x_box, y=self.y_box)
 
     def box_button_con(self):
@@ -186,7 +183,8 @@ class Gui:
                         data = s.recv(1024)
                         data = data.decode("utf-8")
                         # print(data)
-                        self.recognize_data(data)
+                        for line in data.strip().split('\n'):
+                            self.recognize_data(line)
 
                     s.close()
                     self.socket = None
@@ -194,6 +192,7 @@ class Gui:
                 raise "Connection error"
 
     def send_message(self, message):
+        print(message)
         self.socket.sendall(bytes(message, 'utf-8'))
 
     def animate(self, i):
@@ -209,8 +208,8 @@ class Gui:
         ax2.set_title('Power of engines')
         ax1.grid()
         ax2.grid()
-        ax2.axis()
-        ax2.set(ylim=(0, 100))
+        # ax2.axis()
+        # ax2.set(ylim=(0, 100))
         # Plot new data
         ax1.plot(self.x_pid_response, self.y_pid_response, label='PID reaction')
         ax1.plot(self.x_angle, self.y_angle, label='Angle')
@@ -243,13 +242,13 @@ class Main:
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        slider_P_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=1000, x_button=550,
+        slider_P_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=20000, x_button=550,
                               y_button=530,
                               name_button='Set P', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        slider_D_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=550,
+        slider_D_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=10000, x_button=550,
                               y_button=495,
                               name_button='Set D', on_press=graphs.send_message)
         slider_D_reg.slider_gener()
@@ -270,9 +269,9 @@ class Main:
         enable.slider_gener()
         enable.slider_button()
 
-        turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=100, x_button=120,
+        turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=8000, x_button=120,
                               y_button=565,
-                              name_button='Turbin', on_press=graphs.send_message)
+                              name_button='Turbine', on_press=graphs.send_message)
         turbin.slider_gener()
         turbin.slider_button()
 
