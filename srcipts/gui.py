@@ -13,6 +13,8 @@ root = Tk.Tk()
 
 x_angle_global = []
 y_angle_global = []
+P_global = []
+D_global = []
 
 class Button:
     def __init__(self, x_button: int, y_button: int, name_button: str):
@@ -35,6 +37,12 @@ class Button:
         with open(file_name, 'w') as f:
             for i, j in zip(x_angle_global, y_angle_global):
                 f.write(str(i) + ',' + str(j))
+                f.write('\n')
+
+        file_name_pid = '../data/pid_settings' + str(numer_file) + '.txt'
+        with open(file_name_pid, 'w') as f:
+            for i, j in zip(P_global, D_global):
+                f.write('P: ' + str(i) + ',' + 'D: ' + str(j))
                 f.write('\n')
 
 
@@ -62,6 +70,12 @@ class Slider:
 
     def slider_callback(self):
         self.on_press(self.name_button + str(';') + str(self.slider.get()) + "\n")
+        if self.name_button == 'Set P':
+            P_global.append(self.slider.get())
+        elif self.name_button == 'Set D':
+            D_global.append(self.slider.get())
+        else:
+            pass
 
 
 class Box:
@@ -151,7 +165,8 @@ class Gui:
                 y_angle_global.append(y_value)
 
         except ValueError:
-            print('Wrong start type of data, not flat or int')
+
+            print('Wrong start type of data, not flat or int', data_check)
 
     def recognize_data(self, given_data):
         # data = '192;angle;8225'
@@ -242,15 +257,13 @@ class Main:
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        slider_P_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=20000, x_button=550,
-                              y_button=530,
-                              name_button='Set P', on_press=graphs.send_message)
+        slider_P_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=550,
+                              y_button=495, name_button='Set P', on_press=graphs.send_message)
         slider_P_reg.slider_gener()
         slider_P_reg.slider_button()
 
-        slider_D_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=10000, x_button=550,
-                              y_button=495,
-                              name_button='Set D', on_press=graphs.send_message)
+        slider_D_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=1000, x_button=550,
+                              y_button=530, name_button='Set D', on_press=graphs.send_message)
         slider_D_reg.slider_gener()
         slider_D_reg.slider_button()
 
@@ -269,7 +282,7 @@ class Main:
         enable.slider_gener()
         enable.slider_button()
 
-        turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=8000, x_button=120,
+        turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=255, x_button=120,
                               y_button=565,
                               name_button='Turbine', on_press=graphs.send_message)
         turbin.slider_gener()
