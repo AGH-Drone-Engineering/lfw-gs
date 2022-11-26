@@ -15,6 +15,7 @@ x_angle_global = []
 y_angle_global = []
 P_global = []
 D_global = []
+velocity = []
 
 class Button:
     def __init__(self, x_button: int, y_button: int, name_button: str):
@@ -41,8 +42,8 @@ class Button:
 
         file_name_pid = '../data/pid_settings' + str(numer_file) + '.txt'
         with open(file_name_pid, 'w') as f:
-            for i, j in zip(P_global, D_global):
-                f.write('P: ' + str(i) + ',' + 'D: ' + str(j))
+            for i, j, h in zip(P_global, D_global, velocity):
+                f.write('P: ' + str(i) + ',' + 'D: ' + str(j) + ',' + str(h))
                 f.write('\n')
 
 
@@ -77,9 +78,46 @@ class Slider:
         else:
             pass
 
+class Box2:
+    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int, on_press, box_name: str,
+                 button_name: str):
+        self.close = None
+        self.thread1 = None
+        self.label = Tk.Button()
+        self.button_dis = None
+        self.button_con = None
+        self.box = None
+        self.x_box = x_box
+        self.y_box = y_box
+        self.x_button = x_button
+        self.y_button = y_button
+        self.width = width
+        self.on_press = on_press
+        self.box_name = box_name
+        self.button_name = button_name
+
+    def box_gener(self):
+        self.box = Tk.Entry(root, width=self.width)
+        self.box.insert(0, self.box_name)
+        self.box.place(x=self.x_box, y=self.y_box)
+
+    def box_button_con(self):
+        self.button_con = Tk.Button(root, text=self.button_name, command=self.box_callback)
+        self.button_con.place(x=self.x_button, y=self.y_button)
+
+    def box_callback(self):
+        self.on_press(self.button_name + str(';') + str(self.box.get()) + "\n")
+        if self.button_name == 'Set P':
+            P_global.append(self.box.get())
+        elif self.button_name == 'Set D':
+            D_global.append(self.box.get())
+        elif 'Set forward':
+            velocity.append(self.box.get())
+        else:
+            pass
 
 class Box:
-    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int, on_press, graphs):
+    def __init__(self, x_box: int, y_box: int, width: int, x_button: int, y_button: int, on_press, graphs, box_name: str):
         self.close = None
         self.thread1 = None
         self.label = Tk.Button()
@@ -93,10 +131,11 @@ class Box:
         self.width = width
         self.on_press = on_press
         self.graphs = graphs
+        self.box_name = box_name
 
     def box_gener(self):
         self.box = Tk.Entry(root, width=self.width)
-        self.box.insert(0, '192.168.4.1')
+        self.box.insert(0, self.box_name)
         self.box.place(x=self.x_box, y=self.y_box)
 
     def box_button_con(self):
@@ -250,31 +289,47 @@ class Main:
 
         graphs = Gui()
 
-        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20, on_press=0, graphs=graphs)
+        connect_IP = Box(x_box=240, y_box=0, width=30, x_button=290, y_button=20, on_press=0, graphs=graphs,
+                         box_name='192.168.4.1')
         connect_IP.disconnected()
         connect_IP.box_gener()
         connect_IP.box_button_con()
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        slider_P_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=550,
-                              y_button=495, name_button='Set P', on_press=graphs.send_message)
-        slider_P_reg.slider_gener()
-        slider_P_reg.slider_button()
+        # slider_P_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=550,
+        #                       y_button=495, name_button='Set P', on_press=graphs.send_message)
+        # slider_P_reg.slider_gener()
+        # slider_P_reg.slider_button()
 
-        slider_D_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=1000, x_button=550,
-                              y_button=530, name_button='Set D', on_press=graphs.send_message)
-        slider_D_reg.slider_gener()
-        slider_D_reg.slider_button()
+        box_p_reg = Box2(x_box=460, y_box=500, width=10, x_button=550, y_button=495, on_press=graphs.send_message,
+                         button_name='Set P',box_name='470')
+        box_p_reg.box_gener()
+        box_p_reg.box_button_con()
+
+        # slider_D_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=1000, x_button=550,
+        #                       y_button=530, name_button='Set D', on_press=graphs.send_message)
+        # slider_D_reg.slider_gener()
+        # slider_D_reg.slider_button()
+
+        box_d_reg = Box2(x_box=460, y_box=530, width=10, x_button=550, y_button=530, on_press=graphs.send_message,
+                         button_name='Set D', box_name='17000')
+        box_d_reg.box_gener()
+        box_d_reg.box_button_con()
 
         button_save_date = Button(460, 570, 'save_data')
         button_save_date.button_generation()
 
-        velocity = Slider(x_slider=10, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=120,
-                              y_button=495,
-                              name_button='Set forward', on_press=graphs.send_message)
-        velocity.slider_gener()
-        velocity.slider_button()
+        # velocity = Slider(x_slider=10, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=120,
+        #                       y_button=495,
+        #                       name_button='Set forward', on_press=graphs.send_message)
+        # velocity.slider_gener()
+        # velocity.slider_button()
+        #
+        box_v = Box2(x_box=25, y_box=500, width=10, x_button=120, y_button=495, on_press=graphs.send_message,
+                         button_name='Set forward', box_name='600')
+        box_v.box_gener()
+        box_v.box_button_con()
 
         enable = Slider(x_slider=10, y_slider=515, min_range_slider=0, max_range_slider=1, x_button=120,
                               y_button=530,
@@ -282,11 +337,16 @@ class Main:
         enable.slider_gener()
         enable.slider_button()
 
-        turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=255, x_button=120,
-                              y_button=565,
-                              name_button='Turbine', on_press=graphs.send_message)
-        turbin.slider_gener()
-        turbin.slider_button()
+        # turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=255, x_button=120,
+        #                       y_button=565,
+        #                       name_button='Turbine', on_press=graphs.send_message)
+        # turbin.slider_gener()
+        # turbin.slider_button()
+
+        box_t = Box2(x_box=25, y_box=570, width=10, x_button=120, y_button=565, on_press=graphs.send_message,
+                         button_name='Turbine',box_name='255')
+        box_t.box_gener()
+        box_t.box_button_con()
 
         root.mainloop()
 
