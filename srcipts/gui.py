@@ -29,6 +29,7 @@ class Button:
         self.button.place(x=self.x_button, y=self.y_button)
 
     def button_callback(self):
+        print('Data saved...')
         dir_path = r'../data'
 
         numer_file = len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))])
@@ -43,7 +44,7 @@ class Button:
         file_name_pid = '../data/pid_settings' + str(numer_file) + '.txt'
         with open(file_name_pid, 'w') as f:
             for i, j, h in zip(P_global, D_global, velocity):
-                f.write('P: ' + str(i) + ',' + 'D: ' + str(j) + ',' + str(h))
+                f.write('P: ' + str(i) + ',' + 'D: ' + str(j) + ', v:' + str(h))
                 f.write('\n')
 
 
@@ -313,7 +314,7 @@ class Main:
         # slider_D_reg.slider_button()
 
         box_d_reg = Box2(x_box=460, y_box=530, width=10, x_button=550, y_button=530, on_press=graphs.send_message,
-                         button_name='Set D', box_name='17000')
+                         button_name='Set D', box_name='170')
         box_d_reg.box_gener()
         box_d_reg.box_button_con()
 
