@@ -298,20 +298,12 @@ class Main:
         time.sleep(0.5)
         ani = FuncAnimation(plt.gcf(), graphs.animate, interval=100, blit=False)
 
-        # slider_P_reg = Slider(x_slider=440, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=550,
-        #                       y_button=495, name_button='Set P', on_press=graphs.send_message)
-        # slider_P_reg.slider_gener()
-        # slider_P_reg.slider_button()
 
         box_p_reg = Box2(x_box=460, y_box=500, width=10, x_button=550, y_button=495, on_press=graphs.send_message,
                          button_name='Set P',box_name='470')
         box_p_reg.box_gener()
         box_p_reg.box_button_con()
 
-        # slider_D_reg = Slider(x_slider=440, y_slider=515, min_range_slider=0, max_range_slider=1000, x_button=550,
-        #                       y_button=530, name_button='Set D', on_press=graphs.send_message)
-        # slider_D_reg.slider_gener()
-        # slider_D_reg.slider_button()
 
         box_d_reg = Box2(x_box=460, y_box=530, width=10, x_button=550, y_button=530, on_press=graphs.send_message,
                          button_name='Set D', box_name='170')
@@ -321,12 +313,6 @@ class Main:
         button_save_date = Button(460, 570, 'save_data')
         button_save_date.button_generation()
 
-        # velocity = Slider(x_slider=10, y_slider=480, min_range_slider=0, max_range_slider=1000, x_button=120,
-        #                       y_button=495,
-        #                       name_button='Set forward', on_press=graphs.send_message)
-        # velocity.slider_gener()
-        # velocity.slider_button()
-        #
         box_v = Box2(x_box=25, y_box=500, width=10, x_button=120, y_button=495, on_press=graphs.send_message,
                          button_name='Set forward', box_name='600')
         box_v.box_gener()
@@ -337,12 +323,6 @@ class Main:
                               name_button='Enable', on_press=graphs.send_message)
         enable.slider_gener()
         enable.slider_button()
-
-        # turbin = Slider(x_slider=10, y_slider=550, min_range_slider=0, max_range_slider=255, x_button=120,
-        #                       y_button=565,
-        #                       name_button='Turbine', on_press=graphs.send_message)
-        # turbin.slider_gener()
-        # turbin.slider_button()
 
         box_t = Box2(x_box=25, y_box=570, width=10, x_button=120, y_button=565, on_press=graphs.send_message,
                          button_name='Turbine',box_name='255')
